@@ -458,4 +458,5 @@ if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
 if __name__ == '__main__':
     # This runs the Flask development server.
     # For production, use a WSGI server like Gunicorn: gunicorn --bind 0.0.0.0:8000 app:app
-    app.run(debug=True, host='0.0.0.0', port=8000)
+    # app.run(debug=True, host='0.0.0.0', port=8000)
+    app.run(debug=True, host='0.0.0.0')
