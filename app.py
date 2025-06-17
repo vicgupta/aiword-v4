@@ -451,7 +451,7 @@ with app.app_context():
 # This check prevents the scheduler from running twice when Flask is in debug mode
 if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
     scheduler = BackgroundScheduler(timezone=pytz.timezone('US/Eastern'))
-    scheduler.add_job(send_daily_word_job, 'cron', hour=19, minute=27)
+    scheduler.add_job(send_daily_word_job, 'cron', hour=os.getenv("HOUR"), minute=os.getenv("MINUTE"))
     scheduler.start()
     print("Scheduler started.")
 
