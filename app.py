@@ -427,7 +427,10 @@ def send_daily_word_job():
     # app_context is needed to access the database outside of a request
     with app.app_context():
         print(f"Running scheduled job at {datetime.now(pytz.timezone('US/Eastern'))}")
-        word_of_day = Word.query.order_by(Word.published_date.desc()).first()
+        today = str(datetime.now(pytz.timezone('US/Eastern')).date())
+        word_of_day = Word.query(Word.published_date == today).first()
+        # word_of_day = Word.query(Word.).order_by(Word.published_date.desc()).first()
+        # word_of_day = Word.query.order_by(Word.published_date.desc()).first()
         if not word_of_day:
             print("Job aborted: No word of the day found.")
             return
