@@ -343,12 +343,14 @@ def create_bulk_words():
     if not isinstance(words_data, list):
         return jsonify({'error': 'Request body must be a list of words'}), 400
     try:
+        # print (words_data)
         for word_data in words_data:
             new_word = Word(title=word_data['title'], description=word_data['description'], example=word_data['example'], published_date=word_data['published_date'])
             db.session.add(new_word)
         db.session.commit()
         return jsonify({'message': f'Successfully added {len(words_data)} words.'}), 200
     except Exception as e:
+        print (e)
         db.session.rollback()
         return jsonify({'error': f'An error occurred: {e}'}), 500
 
@@ -462,10 +464,12 @@ if __name__ == '__main__':
     # This runs the Flask development server.
     # For production, use a WSGI server like Gunicorn: gunicorn --bind 0.0.0.0:8000 app:app
     # app.run(debug=True, host='0.0.0.0', port=8000)
+    # app.run(debug=True, host='0.0.0.0')
     app.run(debug=True, host='0.0.0.0')
     # with app.app_context():
     #     print(f"Running scheduled job at {datetime.now(pytz.timezone('US/Eastern'))}")
     #     today = str(datetime.now(pytz.timezone('US/Eastern')).date())
+    #     print (type(today))
     #     word_of_day = db.session.query(Word).filter(Word.published_date == today).first()
     #     print (word_of_day.title, word_of_day.published_date)
     
