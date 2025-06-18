@@ -299,10 +299,10 @@ class Word(db.Model):
     title = db.Column(db.String(100), nullable=False, index=True)
     description = db.Column(db.String(500), nullable=False)
     example = db.Column(db.String(500), nullable=False)
-    published_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    published_date = db.Column(db.String(10), nullable=False, index=True)
 
     def to_dict(self):
-        return {'id': self.id, 'title': self.title, 'description': self.description, 'example': self.example, 'published_date': self.published_date.isoformat()}
+        return {'id': self.id, 'title': self.title, 'description': self.description, 'example': self.example, 'published_date': self.published_date}
 
 # --- 4. HTML Page Routes ---
 @app.route('/')
@@ -332,7 +332,7 @@ def create_word():
     data = request.get_json()
     if not all(key in data for key in ['title', 'description', 'example']):
         return jsonify({'error': 'Missing required fields'}), 400
-    new_word = Word(title=data['title'], description=data['description'], example=data['example'])
+    new_word = Word(title=data['title'], description=data['description'], example=data['example'], published_date=word_data['published_date'])
     db.session.add(new_word)
     db.session.commit()
     return jsonify(new_word.to_dict()), 201
@@ -344,7 +344,7 @@ def create_bulk_words():
         return jsonify({'error': 'Request body must be a list of words'}), 400
     try:
         for word_data in words_data:
-            new_word = Word(title=word_data['title'], description=word_data['description'], example=word_data['example'])
+            new_word = Word(title=word_data['title'], description=word_data['description'], example=word_data['example'], published_date=word_data['published_date'])
             db.session.add(new_word)
         db.session.commit()
         return jsonify({'message': f'Successfully added {len(words_data)} words.'}), 200
