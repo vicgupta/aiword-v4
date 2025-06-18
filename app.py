@@ -428,7 +428,7 @@ def send_daily_word_job():
     with app.app_context():
         print(f"Running scheduled job at {datetime.now(pytz.timezone('US/Eastern'))}")
         today = str(datetime.now(pytz.timezone('US/Eastern')).date())
-        word_of_day = Word.query(Word.published_date == today).first()
+        word_of_day = db.session.query(Word).filter(Word.published_date == today).first()
         # word_of_day = Word.query(Word.).order_by(Word.published_date.desc()).first()
         # word_of_day = Word.query.order_by(Word.published_date.desc()).first()
         if not word_of_day:
