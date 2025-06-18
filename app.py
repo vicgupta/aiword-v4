@@ -299,7 +299,7 @@ class Word(db.Model):
     title = db.Column(db.String(100), nullable=False, index=True)
     description = db.Column(db.String(500), nullable=False)
     example = db.Column(db.String(500), nullable=False)
-    published_date = db.Column(db.String(10), nullable=False, index=True)
+    published_date = db.Column(db.String(10), nullable=False, unique=True, index=True)
 
     def to_dict(self):
         return {'id': self.id, 'title': self.title, 'description': self.description, 'example': self.example, 'published_date': self.published_date}
@@ -332,7 +332,7 @@ def create_word():
     data = request.get_json()
     if not all(key in data for key in ['title', 'description', 'example']):
         return jsonify({'error': 'Missing required fields'}), 400
-    new_word = Word(title=data['title'], description=data['description'], example=data['example'], published_date=word_data['published_date'])
+    new_word = Word(title=data['title'], description=data['description'], example=data['example'], published_date=data['published_date'])
     db.session.add(new_word)
     db.session.commit()
     return jsonify(new_word.to_dict()), 201
@@ -463,3 +463,9 @@ if __name__ == '__main__':
     # For production, use a WSGI server like Gunicorn: gunicorn --bind 0.0.0.0:8000 app:app
     # app.run(debug=True, host='0.0.0.0', port=8000)
     app.run(debug=True, host='0.0.0.0')
+    # with app.app_context():
+    #     print(f"Running scheduled job at {datetime.now(pytz.timezone('US/Eastern'))}")
+    #     today = str(datetime.now(pytz.timezone('US/Eastern')).date())
+    #     word_of_day = db.session.query(Word).filter(Word.published_date == today).first()
+    #     print (word_of_day.title, word_of_day.published_date)
+    
