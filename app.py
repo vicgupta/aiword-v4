@@ -1,7 +1,7 @@
 import os
 import smtplib
 import pytz
-from datetime import datetime
+from datetime import datetime, date
 from email.message import EmailMessage
 from typing import List
 from dotenv import load_dotenv
@@ -299,12 +299,11 @@ class Word(db.Model):
     title = db.Column(db.String(100), nullable=False, index=True)
     description = db.Column(db.String(500), nullable=False)
     example = db.Column(db.String(500), nullable=False)
-    published_date = db.Column(db.String(10), nullable=False, unique=True, index=True)
+    published_date = db.Column(db.Date, nullable=False, unique=True, index=True)
 
     def to_dict(self):
         return {'id': self.id, 'title': self.title, 'description': self.description, 'example': self.example, 'published_date': self.published_date}
 
-# --- 4. HTML Page Routes ---
 @app.route('/')
 def index_page():
     return INDEX_HTML
@@ -343,9 +342,10 @@ def create_bulk_words():
     if not isinstance(words_data, list):
         return jsonify({'error': 'Request body must be a list of words'}), 400
     try:
-        # print (words_data)
+        print (words_data)
         for word_data in words_data:
-            new_word = Word(title=word_data['title'], description=word_data['description'], example=word_data['example'], published_date=word_data['published_date'])
+            pub_date = datetime.strptime(word_data['published_date'], "%Y-%m-%d")
+            new_word = Word(title=word_data['title'], description=word_data['description'], example=word_data['example'], published_date=pub_date)
             db.session.add(new_word)
         db.session.commit()
         return jsonify({'message': f'Successfully added {len(words_data)} words.'}), 200
@@ -429,7 +429,7 @@ def send_daily_word_job():
     # app_context is needed to access the database outside of a request
     with app.app_context():
         print(f"Running scheduled job at {datetime.now(pytz.timezone('US/Eastern'))}")
-        today = str(datetime.now(pytz.timezone('US/Eastern')).date())
+        today = datetime.now(pytz.timezone('US/Eastern')).date()
         word_of_day = db.session.query(Word).filter(Word.published_date == today).first()
         # word_of_day = Word.query(Word.).order_by(Word.published_date.desc()).first()
         # word_of_day = Word.query.order_by(Word.published_date.desc()).first()
@@ -465,11 +465,11 @@ if __name__ == '__main__':
     # For production, use a WSGI server like Gunicorn: gunicorn --bind 0.0.0.0:8000 app:app
     # app.run(debug=True, host='0.0.0.0', port=8000)
     # app.run(debug=True, host='0.0.0.0')
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port=8000)
     # with app.app_context():
     #     print(f"Running scheduled job at {datetime.now(pytz.timezone('US/Eastern'))}")
-    #     today = str(datetime.now(pytz.timezone('US/Eastern')).date())
-    #     print (type(today))
+    #     today = datetime.now(pytz.timezone('US/Eastern')).date()
+    #     print (today)
     #     word_of_day = db.session.query(Word).filter(Word.published_date == today).first()
-    #     print (word_of_day.title, word_of_day.published_date)
+    #     print (word_of_day.title)
     
